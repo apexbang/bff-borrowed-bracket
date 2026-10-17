@@ -1,0 +1,68 @@
+{
+ "s1_e7904.bin": {
+  "chip": "seed 1",
+  "died": false,
+  "heads": false,
+  "desc": "Epoch 7,904, the first birth I caught. The parent's loop [ , < , } } has no closing ]. The partner's first byte is one, so the loop closes across the seam, 63 passes, and writes a compacted, mirrored replicator."
+ },
+ "s25_e7880.bin": {
+  "chip": "seed 25",
+  "died": false,
+  "heads": false,
+  "desc": "Epoch 7,880. The parent's [ … + … < has no ] of its own; it borrows the one at the partner's byte 1. The lineage took over 320 epochs later."
+ },
+ "s30_e7710.bin": {
+  "chip": "seed 30",
+  "died": false,
+  "heads": false,
+  "desc": "Epoch 7,710. The parent is a ladder of [·[·[ ending in a { > . > loop body with no ]. The partner's byte-1 ] closes it."
+ },
+ "s39_e9994.bin": {
+  "chip": "seed 39",
+  "died": false,
+  "heads": false,
+  "desc": "Epoch 9,994. The partner starts with ]] (armour twice over), and the first of them closes the parent's loop."
+ },
+ "s24_e15952.bin": {
+  "chip": "seed 24",
+  "died": false,
+  "heads": false,
+  "desc": "Epoch 15,952. A sparse parent: [ < , and two } scattered over 64 bytes. The ] it borrows sits at the partner's byte 4."
+ },
+ "s37_e3996.bin": {
+  "chip": "seed 37, stillborn",
+  "died": true,
+  "heads": false,
+  "desc": "Epoch 3,996. The same trick with the partner's byte-0 ], but this lineage died within a couple of hundred epochs. About half of all births end like this."
+ },
+ "s17_e11179.bin": {
+  "chip": "seed 17, stillborn",
+  "died": true,
+  "heads": false,
+  "desc": "Epoch 11,179. A borrowed ] at the partner's byte 0 again; the lineage was gone by epoch 11,300."
+ },
+ "s18_e101166.bin": {
+  "chip": "seed 18, lock and key",
+  "died": false,
+  "heads": false,
+  "desc": "Epoch 101,166. No seam loop. The parent opens with < … < ], which tests the partner's byte 126 and halts unless it is zero. This partner ends in 00, so the parent runs and writes a mirrored copy that carries the zero along."
+ },
+ "s502_e11048.bin": {
+  "chip": "heads variant, seed 502",
+  "died": false,
+  "heads": true,
+  "desc": "The other BFF variant: bytes 0 and 1 aim the heads and execution starts at byte 2. The borrowed ] sits deep in the partner (byte 35), and the copy comes out direct, not mirrored."
+ },
+ "s504_e39007.bin": {
+  "chip": "heads variant, seed 504",
+  "died": false,
+  "heads": true,
+  "desc": "No seam loop. The parent runs 8 instructions and writes two , bytes into the newborn, which completes the newborn's own loop [ > , , } ]."
+ },
+ "s510_e13149.bin": {
+  "chip": "heads variant, seed 510",
+  "died": false,
+  "heads": true,
+  "desc": "No seam loop, and the newborn is the top row this time. A single byte written during the interaction completes the newborn's loop."
+ }
+}

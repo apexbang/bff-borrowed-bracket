@@ -1,0 +1,7 @@
+seed 40809 | heritable copier at epoch 2772 tile (155,77) (1 tiles)
+  BIRTH epoch 2772: tile (155,77) rewritten while second half, partner (157,76); 1170 ops; replay 64/64; lineage steps 1
+    first  ········[·····{·······.········<··>··.·······················<·<
+    second ]·······················································<·······
+    after  ········[·····{·······.········<<········.·······{·····[···········[··{···.·····>··············]]··············>·····.···{··[···
+    child copier: true  |  seam loops: ]@64->[@8 x63
+seed 40809 | TRANSITION at epoch 3100

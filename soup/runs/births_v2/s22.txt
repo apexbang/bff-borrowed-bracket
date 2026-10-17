@@ -1,0 +1,14 @@
+seed 22 | heritable copier at epoch 50491 tile (128,48) (2 tiles)
+  BIRTH epoch 50477: tile (130,45) changed without interacting: mutation
+    before ······[·,·······]··········<·}··]··}·<·············,[·········<·
+    after  ······[·,··················<·}··]··}·<·············,[·········<·
+    changed byte 16: ] -> ·  |  was copier before: false
+  lineage gone by epoch 50700
+seed 22 | heritable copier at epoch 50798 tile (120,41) (1 tiles)
+  BIRTH epoch 50607: tile (119,48) rewritten while second half, partner (118,47); 76 ops; replay 64/64; lineage steps 59
+    first  ·····{·······<···<·0·0<<}}····}}<<········00········,,[[········
+    second ·<[·,··················<·}··]··}·<·······<0·0················,·[
+    after  ·····{·······<···<·0·0<<}}····}}<<········00········,,[[·········<[·,··················<·}··]··}·<········0·0··<·······{·····,·[
+    child copier: true  |  seam loops: none
+  lineage gone by epoch 50900
+seed 22 | no transition in 150000 epochs

@@ -1,0 +1,1 @@
+0 copiers (0.000e0/program), 0 heritable (0.000e0/program), in 1000000000 samples from uniform bytes

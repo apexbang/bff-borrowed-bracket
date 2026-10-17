@@ -1,0 +1,15 @@
+seed 41 | heritable copier at epoch 6688 tile (74,99) (1 tiles)
+  BIRTH epoch 6688: tile (74,99) rewritten while second half, partner (74,98); 1654 ops; replay 64/64; lineage steps 1
+    first  ···················}··························[···.···>··{·····>
+    second ]]······{··>···.···[··························}·················
+    after  ···················}····························}···························[.>··············{···]]···{··············>.[········
+    child copier: true  |  seam loops: ]@64->[@46 x65
+  lineage gone by epoch 6800
+seed 41 | heritable copier at epoch 15190 tile (197,101) (1 tiles)
+  BIRTH epoch 15190: tile (197,101) rewritten while second half, partner (199,103); 1415 ops; replay 64/64; lineage steps 1
+    first  ···································[·········>··.··········{···>
+    second ]]····{··········.··>·········[·································
+    after  ··>····························································>·········[·····{>·······.·······]]·······.·······>{·····[·······
+    child copier: true  |  seam loops: ]@64->[@35 x64
+  lineage gone by epoch 15300
+seed 41 | no transition in 40000 epochs

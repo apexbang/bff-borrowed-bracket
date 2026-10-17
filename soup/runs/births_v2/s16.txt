@@ -1,0 +1,7 @@
+seed 16 | heritable copier at epoch 73091 tile (103,102) (1 tiles)
+  BIRTH epoch 73091: tile (103,102) changed without interacting: mutation
+    before ···········[·<·}]··········,····]·},··<···[···········.···,++···
+    after  ···········[·<·}···········,····]·},··<···[···········.···,++···
+    changed byte 16: ] -> ·  |  was copier before: false
+  lineage gone by epoch 73200
+seed 16 | no transition in 150000 epochs

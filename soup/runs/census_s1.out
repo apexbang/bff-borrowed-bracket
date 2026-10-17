@@ -1,0 +1,2 @@
+TRANSITION seed 1 at epoch 5760
+done seed 1 epochs 5760 transition Some(5760) in 297s

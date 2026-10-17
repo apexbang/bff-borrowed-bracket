@@ -1,0 +1,1 @@
+seed 106 | no transition in 150000 epochs

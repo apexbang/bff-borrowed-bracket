@@ -1,0 +1,752 @@
+<title>Primordial Soup</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a lab bench. The live slide (canvas) is the hero; instruments sit beside it; notes run below. */
+:root {
+  --bg: #eceee9;
+  --surface: #f8f9f6;
+  --ink: #1d2230;
+  --muted: #5b6270;
+  --rule: #c8ccc3;
+  --eosin: #b8365f;
+  --hema: #3f3c8f;
+  --slide: #0d0f14;
+  --display: "Young Serif", "Iowan Old Style", Georgia, serif;
+  --body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121419; --surface: #1a1d24; --ink: #e5e6ea; --muted: #959cab;
+    --rule: #2e323c; --eosin: #ee7d9f; --hema: #a29eff; --slide: #07080b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121419; --surface: #1a1d24; --ink: #e5e6ea; --muted: #959cab;
+  --rule: #2e323c; --eosin: #ee7d9f; --hema: #a29eff; --slide: #07080b;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.55 var(--body);
+}
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 28px;
+}
+header { display: grid; gap: 6px; max-width: 70ch; }
+.eyebrow {
+  font: 600 11px/1 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--eosin);
+}
+h1 {
+  font: 400 clamp(32px, 5vw, 48px)/1.05 var(--display);
+  margin: 0;
+  text-wrap: balance;
+}
+header p { margin: 0; color: var(--muted); }
+
+.bench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 900px) { .bench { grid-template-columns: minmax(0, 1fr); } }
+
+.slide {
+  background: var(--slide);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+.slide-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font: 11px/1.3 var(--mono);
+  color: #8a90a0;
+  letter-spacing: 0.04em;
+}
+#view {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  image-rendering: pixelated;
+  display: block;
+  cursor: crosshair;
+  background: #000;
+}
+
+.panel { display: grid; gap: 16px; min-width: 0; }
+.group {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.group h2 {
+  font: 600 11px/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+button, select {
+  font: 600 13px/1 var(--body);
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+button:hover, select:hover { border-color: var(--muted); }
+button:focus-visible, select:focus-visible, input:focus-visible, #view:focus-visible {
+  outline: 2px solid var(--hema);
+  outline-offset: 2px;
+}
+button.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); min-width: 84px; }
+.tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.tools button { border-radius: 0; margin-left: -1px; font-weight: 400; padding-inline: 6px; }
+.tools button:first-child { border-radius: 3px 0 0 3px; margin-left: 0; }
+.tools button:last-child { border-radius: 0 3px 3px 0; }
+.tools button[aria-pressed="true"] { background: var(--hema); color: var(--surface); border-color: var(--hema); position: relative; }
+label.slider { display: grid; gap: 4px; font-size: 13px; }
+label.slider span { display: flex; justify-content: space-between; color: var(--muted); }
+label.slider output { font: 12px var(--mono); color: var(--ink); }
+input[type=range] { width: 100%; accent-color: var(--hema); }
+select { width: 100%; min-width: 0; font-weight: 400; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+
+.state {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 12px/1 var(--mono);
+  letter-spacing: 0.04em;
+  padding: 6px 10px;
+  border-radius: 99px;
+  border: 1px solid var(--rule);
+  color: var(--muted);
+  justify-self: start;
+}
+.state::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.state[data-s="life"] { color: var(--eosin); border-color: var(--eosin); }
+
+dl.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 0;
+}
+dl.stats div { display: grid; gap: 2px; }
+dt { font-size: 11px; color: var(--muted); }
+dd { margin: 0; font: 600 17px/1.2 var(--mono); font-variant-numeric: tabular-nums; }
+#spark { width: 100%; height: 70px; display: block; }
+.spark-cap { font: 11px var(--mono); color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: space-between; }
+
+.prog {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 2px;
+  font: 600 12px/1 var(--mono);
+}
+.prog span {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 2px;
+  background: #22252d;
+  color: #0b0c10;
+}
+.prog span.noop { color: #6c7180; font-weight: 400; font-size: 9px; }
+.inspect-meta { font: 12px/1.4 var(--mono); color: var(--muted); }
+.inspect-meta b { color: var(--ink); font-weight: 600; }
+
+.legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; font-size: 12.5px; }
+.legend div { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+.legend code {
+  font: 600 12px/1 var(--mono);
+  width: 20px; height: 20px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 2px; color: #0b0c10;
+}
+
+.notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 28px 40px;
+  border-top: 1px solid var(--rule);
+  padding-top: 28px;
+}
+.notes section { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.notes h3 { font: 400 22px/1.2 var(--display); margin: 0; text-wrap: balance; }
+.notes p { margin: 0; max-width: 62ch; }
+.notes pre {
+  margin: 0;
+  font: 12.5px/1.5 var(--mono);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 10px 12px;
+  overflow-x: auto;
+}
+.notes .mark { color: var(--eosin); }
+a { color: var(--hema); }
+footer { font-size: 12.5px; color: var(--muted); }
+
+
+.replay { display: grid; gap: 12px; }
+.replay-head { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: baseline; justify-content: space-between; }
+.replay-head p { margin: 0; max-width: 70ch; color: var(--muted); font-size: 14px; }
+.tape-scroll { overflow-x: auto; padding-block: 4px 8px; }
+.tape { display: grid; gap: 14px; min-width: 860px; }
+.tape-row { display: grid; grid-template-columns: 92px repeat(64, minmax(0, 1fr)); gap: 1px; align-items: center; }
+.tape-row .who { font: 11px/1.2 var(--mono); color: var(--muted); padding-right: 6px; }
+.cell {
+  position: relative;
+  aspect-ratio: 1 / 1.35;
+  display: grid; place-items: center;
+  font: 600 11px/1 var(--mono);
+  background: #22252d; color: #0b0c10;
+  border-radius: 1px;
+}
+.cell.noop { color: #6c7180; font-weight: 400; }
+.cell.pc { outline: 2px solid var(--ink); outline-offset: 0; z-index: 2; }
+.cell.h0::after, .cell.h1::before {
+  content: ""; position: absolute; left: 15%; right: 15%; height: 3px; border-radius: 2px;
+}
+.cell.h0::after { bottom: -6px; background: var(--eosin); }
+.cell.h1::before { top: -6px; background: var(--hema); }
+.cell.flash { box-shadow: 0 0 0 2px var(--eosin); }
+.replay-stats { display: flex; flex-wrap: wrap; gap: 8px 22px; font: 12px var(--mono); color: var(--muted); }
+.replay-stats b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.key { display: inline-flex; align-items: center; gap: 6px; }
+.key i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; }
+#replayNote { min-height: 1.5em; font-size: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { font: 12px/1.2 var(--mono); padding: 6px 9px; font-weight: 400; display: inline-flex; gap: 6px; align-items: center; }
+.chips button[aria-pressed="true"] { background: var(--hema); color: var(--surface); border-color: var(--hema); }
+.chips .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: 0.55; }
+.chips .dot.died { background: transparent; border: 1.5px solid currentColor; }
+.key i.dot-key { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+.key i.dot-key.died { background: transparent; border: 1.5px solid var(--muted); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">BFF · 2D primordial soup · live</div>
+    <h1>Self-replicators out of random noise</h1>
+    <p>Every 8×8 tile is a 64-byte program. Each epoch, tiles pair up with a neighbour, get glued into one tape, and run as code that can rewrite itself and its partner. Nothing rewards copying. The slide opens on a real moment from an overnight run: epoch 7,904, one epoch after the first replicator appeared (ringed). Watch whether it survives and spreads.</p>
+  </header>
+
+  <div class="bench">
+    <div class="slide">
+      <div class="slide-label"><span id="slideId">SLIDE</span><span>128 × 72 · 9,216 PROGRAMS · 590 KB</span></div>
+      <canvas id="view" width="1024" height="576" tabindex="0" aria-label="The soup. Each tile is one program; click to use the selected tool."></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="group">
+        <label class="slider" for="startSel">
+          <span>Starting soup</span>
+          <select id="startSel">
+            <option value="birth">Epoch 7,904: one replicator, just born</option>
+            <option value="seed10">Random bytes, seed 10: comes alive near epoch 2,600</option>
+            <option value="fresh">Random bytes, new seed: may take a long time</option>
+          </select>
+        </label>
+        <div class="row">
+          <button id="runBtn" class="primary" type="button">Pause</button>
+          <button id="resetBtn" type="button">Restart</button>
+          <label class="check"><input id="slow" type="checkbox"> Slow motion</label>
+        </div>
+        <span class="state" id="state" data-s="pre">Pre-life: no replicators yet</span>
+        <dl class="stats">
+          <div><dt>Epoch</dt><dd id="epoch">0</dd></div>
+          <div><dt>Ops / pair</dt><dd id="opp">0</dd></div>
+          <div><dt>High-order H</dt><dd id="hoe">0.00</dd></div>
+        </dl>
+        <div>
+          <canvas id="spark" width="584" height="140" aria-label="High-order entropy over time"></canvas>
+          <div class="spark-cap"><span>high-order entropy, bits/byte</span><span id="sparkMax">epoch 0</span></div>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2>Click the slide to</h2>
+        <div class="tools" role="group" aria-label="Click tool">
+          <button type="button" data-tool="inspect" aria-pressed="true">Inspect</button>
+          <button type="button" data-tool="seed" aria-pressed="false">Add replicator</button>
+          <button type="button" data-tool="zap" aria-pressed="false">Scramble</button>
+        </div>
+        <label class="slider" for="mut">
+          <span>Mutation per byte per epoch <output id="mutOut">0.024%</output></span>
+          <input id="mut" type="range" min="0" max="0.2" step="0.004" value="0.024">
+        </label>
+      </div>
+
+      <div class="group" id="inspector">
+        <h2>Under the lens</h2>
+        <div class="inspect-meta" id="inspectMeta">Click a tile to read its program.</div>
+        <div class="prog" id="prog"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="group replay" id="replay">
+    <div class="replay-head">
+      <h2>Birth gallery: replay one interaction</h2>
+      <div class="row">
+        <button id="rpPlay" class="primary" type="button">Play</button>
+        <button id="rpStep" type="button">Step</button>
+        <button id="rpReset" type="button">Reset</button>
+        <select id="rpSpeed" aria-label="Replay speed" style="width:auto">
+          <option value="6">Slow</option>
+          <option value="60" selected>Medium</option>
+          <option value="600">Fast</option>
+        </select>
+      </div>
+    </div>
+    <div class="chips" id="rpChips" role="group" aria-label="Choose a birth"></div>
+    <div class="replay-stats"><span class="key"><i class="dot-key"></i>lineage took over</span><span class="key"><i class="dot-key died"></i>died young</span></div>
+    <p id="rpDesc" style="margin:0;max-width:75ch"></p>
+    <div class="tape-scroll"><div class="tape" id="tape"></div></div>
+    <div class="replay-stats">
+      <span>byte reads <b id="rpReads">0</b> / 8,192</span>
+      <span>instructions <b id="rpOps">0</b></span>
+      <span>loops closed across the seam <b id="rpSeam">0</b></span>
+      <span class="key"><i style="background:var(--ink);height:10px;width:10px;border-radius:1px"></i>program counter</span>
+      <span class="key"><i style="background:var(--eosin)"></i>head0</span>
+      <span class="key"><i style="background:var(--hema)"></i>head1</span>
+    </div>
+    <div id="replayNote">Press Play.</div>
+  </div>
+
+  <div class="group">
+    <h2>The ten instructions (every other byte value is a no-op)</h2>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <div class="notes">
+    <section>
+      <h3>What you are watching</h3>
+      <p>Two programs glued into a 128-byte tape share one memory. Instruction pointer, head0 and head1 all start at byte 0. The instructions move heads, bump bytes, and copy between heads. Code is data, so a program can overwrite its partner, including the partner's code.</p>
+      <p>The paper this reproduces found that in about 40% of runs, programs that copy themselves appear within 16k epochs, with no fitness function and no selection. Here the grid is smaller than the paper's 240 × 135, so it can take longer. If you get impatient, use <em>Add replicator</em>.</p>
+    </section>
+    <section>
+      <h3>Two ways to copy yourself</h3>
+      <p>Overnight runs found two replicators, one per run. The marked bytes are the ones each can't lose:</p>
+<pre>2D grid    ··[·······&lt;,··}·]·········{·····}········]·········}··,&lt;······[·
+             <span class="mark">^       ^^  ^</span>
+well-mixed ······[·····{·.&gt;]·&lt;··········&lt;·&lt;]·]&lt;·&lt;&lt;·········&lt;·]&gt;.·{·····[···
+                 <span class="mark">^     ^ ^^^</span></pre>
+      <p>Both walk one head backwards from byte 0, which wraps straight into the partner, and copy themselves across one byte at a time. The copy comes out mirrored. Both tails are their heads reversed, so the mirror image is again a working copier. In the well-mixed soup every species shows up as a mirror pair with near-equal counts (263 and 261 copies, 201 and 198), flipping orientation each generation.</p>
+    </section>
+    <section id="rarity">
+      <h3>How the first one was born</h3>
+      <p>Pure noise almost never does it. Of a billion random 64-byte strings, about 6 per million copy most of themselves into a neighbour, and none make copies that can copy again.</p>
+      <p>I replayed this run epoch by epoch to catch the birth. At epoch 7,904, tile (64, 34) on this slide held a program with an unfinished copy loop and no closing <code>]</code>. It was paired with the ringed tile, whose first byte happened to be <code>]</code>. The loop closed across the seam and wrote a complete replicator into the ringed tile. The same thing, a borrowed bracket, started life in the well-mixed run too.</p>
+      <p>Across 60 runs I traced 49 births this way. 42 began with a borrowed <code>]</code>, and 3 more with some other piece supplied by the partner. Only 2 came from a lucky mutation. About half of all new lineages die within a few hundred epochs.</p>
+      <p>Changing the rules confirms it. When loops can't close across the seam, no life appeared in 3 million epochs. Normally there are about 50 births in that time. When programs can't start with <code>]</code>, births fall threefold.</p>
+    </section>
+  </div>
+
+  <footer>
+    After Agüera y Arcas et al., <a href="https://arxiv.org/abs/2406.19108" target="_blank" rel="noopener">“Computational Life: How Well-formed, Self-replicating Programs Emerge from Simple Interaction”</a> (2024). Simulation rules follow the reference implementation; this page reimplements them in JavaScript.
+  </footer>
+</div>
+
+<script id="simSrc" type="text/plain">
+/*__SIM__*/
+</script>
+
+<script>
+(() => {
+const W = 128, H = 72, N = W * H, PROG = 64;
+const BIRTH_SEED = /*__SEED__*/;
+const BIRTH_B64 = "/*__BIRTH__*/";
+const REPLICATOR = new Uint8Array([185,31,91,199,192,226,22,37,37,133,60,44,180,233,125,128,93,141,103,38,190,59,160,81,117,134,123,69,102,220,184,124,125,59,68,32,239,88,38,118,172,93,21,203,48,38,74,99,246,106,107,125,233,70,44,60,47,110,239,37,254,3,91,37]);
+
+const OPS = {
+  60: ['<', [230, 80, 80], 'head0 left'],
+  62: ['>', [250, 150, 60], 'head0 right'],
+  123: ['{', [80, 120, 240], 'head1 left'],
+  125: ['}', [60, 190, 250], 'head1 right'],
+  43: ['+', [80, 210, 100], 'byte at head0 +1'],
+  45: ['-', [30, 140, 70], 'byte at head0 −1'],
+  46: ['.', [250, 230, 80], 'copy head0 → head1'],
+  44: [',', [190, 110, 230], 'copy head1 → head0'],
+  91: ['[', [255, 255, 255], 'if byte at head0 is 0, jump past ]'],
+  93: [']', [200, 200, 200], 'if byte at head0 isn’t 0, jump back to ['],
+};
+const rgb = c => `rgb(${c[0]},${c[1]},${c[2]})`;
+
+// Byte -> packed ABGR pixel for ImageData.
+const LUT = new Uint32Array(256);
+for (let b = 0; b < 256; b++) {
+  let c;
+  if (OPS[b]) c = OPS[b][1];
+  else if (b === 0) c = [0, 0, 0];
+  else { const g = 20 + (b >> 3); c = [g, g, g + 4]; }
+  LUT[b] = 0xff000000 | (c[2] << 16) | (c[1] << 8) | c[0];
+}
+
+// Legend
+const legend = document.getElementById('legend');
+for (const b of [60, 62, 123, 125, 43, 45, 46, 44, 91, 93]) {
+  const [ch, col, what] = OPS[b];
+  const d = document.createElement('div');
+  d.innerHTML = `<code style="background:${rgb(col)}">${ch}</code><span></span>`;
+  d.lastChild.textContent = what;
+  legend.append(d);
+}
+
+// Worker
+const src = document.getElementById('simSrc').textContent + `
+let soup, running = false, slow = false, ticking = false;
+function post(opp) {
+  const copy = soup.data.slice();
+  postMessage({ data: copy, epoch: soup.epoch, opp }, [copy.buffer]);
+}
+function tick() {
+  if (!running) { ticking = false; return; }
+  const t0 = performance.now();
+  let opp = 0, k = 0;
+  do { opp += soup.step(); k++; } while (!slow && performance.now() - t0 < 45);
+  post(opp / k);
+  setTimeout(tick, slow ? 70 : 0);
+}
+onmessage = (e) => {
+  const m = e.data;
+  if (m.type === 'init') {
+    soup = new Soup(m.w, m.h, m.seed, m.mutation);
+    if (m.data) soup.data.set(m.data);
+    soup.epoch = m.epoch || 0;
+    post(0);
+  }
+  else if (m.type === 'run') { running = m.on; if (running && !ticking) { ticking = true; tick(); } }
+  else if (m.type === 'slow') slow = m.on;
+  else if (m.type === 'mutation') soup.mutation = m.rate;
+  else if (m.type === 'write') { for (const i of m.cells) soup.data.set(m.bytes, i * 64); if (!running) post(0); }
+  else if (m.type === 'scramble') {
+    for (const i of m.cells) for (let k = 0; k < 64; k++) soup.data[i * 64 + k] = soup.rng() & 255;
+    if (!running) post(0);
+  }
+};`;
+const worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+
+const view = document.getElementById('view');
+const ctx = view.getContext('2d');
+const img = ctx.createImageData(1024, 576);
+const px = new Uint32Array(img.data.buffer);
+let latest = new Uint8Array(N * PROG);
+let firstMark = false, pendingInspect = false;
+let epoch = 0, running = true, seed = 0, lifeAt = null, history = [], selected = null, tool = 'inspect';
+
+function draw(data) {
+  for (let cell = 0; cell < N; cell++) {
+    const gx = (cell % W) * 8, gy = ((cell / W) | 0) * 8, base = cell * PROG;
+    for (let k = 0; k < PROG; k++) px[(gy + (k >> 3)) * 1024 + gx + (k & 7)] = LUT[data[base + k]];
+  }
+  ctx.putImageData(img, 0, 0);
+  if (selected !== null) {
+    ctx.strokeStyle = '#ff4d8d'; ctx.lineWidth = 2;
+    ctx.strokeRect((selected % W) * 8 - 1, ((selected / W) | 0) * 8 - 1, 10, 10);
+  }
+}
+
+worker.onmessage = (e) => {
+  latest = e.data.data;
+  epoch = e.data.epoch;
+  document.getElementById('epoch').textContent = epoch.toLocaleString();
+  if (e.data.opp) document.getElementById('opp').textContent = e.data.opp.toFixed(0);
+  draw(latest);
+  if (pendingInspect) { pendingInspect = false; showProgram(FIRST); }
+};
+
+const BIRTH = Uint8Array.from(atob(BIRTH_B64), (c) => c.charCodeAt(0));
+const FIRST = 36 * W + 65; // where the first replicator sits in the crop
+function start(kind) {
+  const birth = kind === 'birth';
+  seed = birth ? BIRTH_SEED : kind === 'seed10' ? 10 : (Math.random() * 1e6) | 0;
+  lifeAt = null; history = []; selected = birth ? FIRST : null; firstMark = birth;
+  document.getElementById('slideId').textContent = birth
+    ? 'SLIDE · OVERNIGHT RUN, TILES 112–239 × 7–78 · FROM EPOCH 7,904'
+    : `SLIDE · RANDOM SOUP · SEED ${seed}`;
+  setState();
+  worker.postMessage({ type: 'init', w: W, h: H, seed, mutation: +mut.value / 100,
+    data: birth ? BIRTH : null, epoch: birth ? 7904 : 0 });
+  worker.postMessage({ type: 'run', on: running });
+  showProgram(null);
+  pendingInspect = birth;
+}
+
+// High-order entropy: Shannon entropy minus deflate-compressed bits per byte.
+async function hoe(data) {
+  const counts = new Float64Array(256);
+  for (let i = 0; i < data.length; i++) counts[data[i]]++;
+  let h = 0;
+  for (const c of counts) if (c) { const p = c / data.length; h -= p * Math.log2(p); }
+  const stream = new Blob([data]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+  const size = (await new Response(stream).arrayBuffer()).byteLength;
+  return h - (size * 8) / data.length;
+}
+
+function setState() {
+  const el = document.getElementById('state');
+  if (lifeAt === null) { el.dataset.s = 'pre'; el.textContent = 'Pre-life: no replicators yet'; }
+  else { el.dataset.s = 'life'; el.textContent = `Replicators since epoch ${lifeAt.toLocaleString()}`; }
+}
+
+function drawSpark() {
+  const c = document.getElementById('spark'), g = c.getContext('2d');
+  const css = getComputedStyle(document.documentElement);
+  const ink = css.getPropertyValue('--hema').trim(), rule = css.getPropertyValue('--rule').trim();
+  const eosin = css.getPropertyValue('--eosin').trim();
+  g.clearRect(0, 0, c.width, c.height);
+  const minE = history.length ? history[0][0] : epoch;
+  const maxE = Math.max(minE + 1000, epoch), maxH = 5;
+  const X = e => ((e - minE) / (maxE - minE)) * (c.width - 4) + 2, Y = v => c.height - 4 - (Math.max(0, v) / maxH) * (c.height - 8);
+  g.strokeStyle = rule; g.lineWidth = 1;
+  for (const v of [1, 2, 3, 4]) { g.beginPath(); g.moveTo(0, Y(v)); g.lineTo(c.width, Y(v)); g.stroke(); }
+  if (lifeAt !== null) { g.strokeStyle = eosin; g.setLineDash([4, 4]); g.beginPath(); g.moveTo(X(lifeAt), 0); g.lineTo(X(lifeAt), c.height); g.stroke(); g.setLineDash([]); }
+  if (history.length > 1) {
+    g.beginPath();
+    history.forEach(([e, v], i) => (i ? g.lineTo(X(e), Y(v)) : g.moveTo(X(e), Y(v))));
+    g.strokeStyle = ink; g.lineWidth = 2.5; g.stroke();
+    const [le, lv] = history[history.length - 1];
+    g.fillStyle = ink; g.beginPath(); g.arc(X(le), Y(lv), 4, 0, 7); g.fill();
+  }
+  document.getElementById('sparkMax').textContent = `${minE.toLocaleString()}–${maxE.toLocaleString()} ep`;
+}
+
+let measuring = false;
+setInterval(async () => {
+  if (measuring) return;
+  measuring = true;
+  try {
+    const v = await hoe(latest);
+    document.getElementById('hoe').textContent = v.toFixed(2);
+    if (!history.length || history[history.length - 1][0] !== epoch) history.push([epoch, v]);
+    if (lifeAt === null && v > 1) { lifeAt = epoch; setState(); }
+    drawSpark();
+  } finally { measuring = false; }
+}, 700);
+
+// Inspector, plus a quick copy test against random partners.
+function bffRun(t) {
+  let h0 = 0, h1 = 0, pc = 0;
+  for (let s = 0; s < 8192; s++) {
+    const c = t[pc];
+    if (c === 60) h0 = (h0 + 127) & 127; else if (c === 62) h0 = (h0 + 1) & 127;
+    else if (c === 123) h1 = (h1 + 127) & 127; else if (c === 125) h1 = (h1 + 1) & 127;
+    else if (c === 43) t[h0] = (t[h0] + 1) & 255; else if (c === 45) t[h0] = (t[h0] + 255) & 255;
+    else if (c === 46) t[h1] = t[h0]; else if (c === 44) t[h0] = t[h1];
+    else if (c === 91 && t[h0] === 0) { let d = 1; while (d) { if (++pc >= 128) return; d += t[pc] === 91 ? 1 : t[pc] === 93 ? -1 : 0; } }
+    else if (c === 93 && t[h0] !== 0) { let d = 1; while (d) { if (--pc < 0) return; d += t[pc] === 93 ? 1 : t[pc] === 91 ? -1 : 0; } }
+    if (++pc >= 128) return;
+  }
+}
+function copyFidelity(p) {
+  let total = 0;
+  for (let trial = 0; trial < 20; trial++) {
+    const t = new Uint8Array(128);
+    crypto.getRandomValues(t);
+    t.set(p, 0);
+    bffRun(t);
+    let direct = 0, mirror = 0;
+    for (let i = 0; i < 64; i++) { direct += t[64 + i] === p[i]; mirror += t[127 - i] === p[i]; }
+    total += Math.max(direct, mirror) / 64;
+  }
+  return total / 20;
+}
+
+function showProgram(cell) {
+  const box = document.getElementById('prog'), meta = document.getElementById('inspectMeta');
+  box.replaceChildren();
+  if (cell === null) { meta.textContent = 'Click a tile to read its program.'; return; }
+  const p = latest.slice(cell * PROG, cell * PROG + PROG);
+  for (const b of p) {
+    const s = document.createElement('span');
+    if (OPS[b]) { s.textContent = OPS[b][0]; s.style.background = rgb(OPS[b][1]); }
+    else { s.className = 'noop'; s.textContent = b === 0 ? '0' : ''; }
+    box.append(s);
+  }
+  const f = copyFidelity(p), ops = [...p].filter(b => OPS[b]).length;
+  const note = firstMark && cell === FIRST ? ' · <b>the first replicator</b> (at epoch 7,904)' : '';
+  meta.innerHTML = `Tile <b>${cell % W}, ${(cell / W) | 0}</b> · ${ops} instructions · run against random neighbours it copies <b>${Math.round(f * 100)}%</b> of itself${note}`;
+}
+
+function cellAt(ev) {
+  const r = view.getBoundingClientRect();
+  const x = Math.floor(((ev.clientX - r.left) / r.width) * W), y = Math.floor(((ev.clientY - r.top) / r.height) * H);
+  return x >= 0 && y >= 0 && x < W && y < H ? [x, y] : null;
+}
+function around(x, y, r) {
+  const cells = [];
+  for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+    const nx = x + dx, ny = y + dy;
+    if (nx >= 0 && ny >= 0 && nx < W && ny < H && dx * dx + dy * dy <= r * r) cells.push(ny * W + nx);
+  }
+  return cells;
+}
+view.addEventListener('click', (ev) => {
+  const xy = cellAt(ev);
+  if (!xy) return;
+  const [x, y] = xy, cell = y * W + x;
+  if (tool === 'inspect') { if (cell !== FIRST) firstMark = false; selected = cell; showProgram(cell); draw(latest); }
+  else if (tool === 'seed') worker.postMessage({ type: 'write', cells: around(x, y, 1), bytes: REPLICATOR });
+  else worker.postMessage({ type: 'scramble', cells: around(x, y, 6) });
+});
+
+document.querySelectorAll('.tools button').forEach((b) => b.addEventListener('click', () => {
+  tool = b.dataset.tool;
+  document.querySelectorAll('.tools button').forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+}));
+const runBtn = document.getElementById('runBtn');
+runBtn.addEventListener('click', () => {
+  running = !running;
+  runBtn.textContent = running ? 'Pause' : 'Run';
+  worker.postMessage({ type: 'run', on: running });
+});
+const startSel = document.getElementById('startSel');
+document.getElementById('resetBtn').addEventListener('click', () => start(startSel.value));
+startSel.addEventListener('change', () => start(startSel.value));
+document.getElementById('slow').addEventListener('change', (e) => worker.postMessage({ type: 'slow', on: e.target.checked }));
+const mut = document.getElementById('mut');
+mut.addEventListener('input', () => {
+  document.getElementById('mutOut').textContent = `${(+mut.value).toFixed(3)}%`;
+  worker.postMessage({ type: 'mutation', rate: +mut.value / 100 });
+});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawSpark);
+new MutationObserver(drawSpark).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+
+// ---- Birth gallery: a step-at-a-time interpreter over one recorded tape.
+const BIRTHS = /*__BIRTHS__*/;
+const tapeEl = document.getElementById('tape');
+const cells = [];
+const rowLabels = [];
+for (const off of [0, 64]) {
+  const row = document.createElement('div');
+  row.className = 'tape-row';
+  const who = document.createElement('div');
+  who.className = 'who';
+  rowLabels.push(who);
+  row.append(who);
+  for (let k = 0; k < 64; k++) { const c = document.createElement('div'); c.className = 'cell'; row.append(c); cells[off + k] = c; }
+  tapeEl.append(row);
+}
+let rp, birth = BIRTHS[0];
+const chips = document.getElementById('rpChips');
+BIRTHS.forEach((b, i) => {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.setAttribute('aria-pressed', String(i === 0));
+  btn.innerHTML = `<span class="dot${b.died ? ' died' : ''}"></span><span></span>`;
+  btn.lastChild.textContent = b.chip;
+  btn.title = b.died ? 'lineage died young' : 'lineage took over';
+  btn.addEventListener('click', () => {
+    chips.querySelectorAll('button').forEach((o) => o.setAttribute('aria-pressed', String(o === btn)));
+    birth = b; rpStop(); rpInit();
+  });
+  chips.append(btn);
+});
+function rpInit() {
+  const t = Uint8Array.from(birth.tape);
+  const [h0, h1, pc] = birth.heads ? [t[0] % 128, t[1] % 128, 2] : [0, 0, 0];
+  rp = { t, pc, h0, h1, reads: 0, ops: 0, seam: 0, done: false, flash: -1 };
+  rowLabels[0].textContent = birth.child === 0 ? 'newborn' : 'parent';
+  rowLabels[1].textContent = birth.child === 1 ? 'newborn' : 'partner';
+  if (birth.child === 0) rowLabels[1].textContent = 'parent';
+  document.getElementById('rpDesc').textContent = birth.desc;
+  rpRender();
+  document.getElementById('replayNote').textContent = 'Press Play.';
+}
+function rpStep() {
+  const r = rp, t = r.t;
+  if (r.done) return;
+  const c = t[r.pc];
+  r.flash = -1;
+  if (c === 60) r.h0 = (r.h0 + 127) & 127; else if (c === 62) r.h0 = (r.h0 + 1) & 127;
+  else if (c === 123) r.h1 = (r.h1 + 127) & 127; else if (c === 125) r.h1 = (r.h1 + 1) & 127;
+  else if (c === 43) t[r.h0] = (t[r.h0] + 1) & 255; else if (c === 45) t[r.h0] = (t[r.h0] + 255) & 255;
+  else if (c === 46) { t[r.h1] = t[r.h0]; r.flash = r.h1; }
+  else if (c === 44) { t[r.h0] = t[r.h1]; r.flash = r.h0; }
+  else if (c === 91 && t[r.h0] === 0) { let d = 1; while (d) { if (++r.pc >= 128) { r.done = true; break; } d += t[r.pc] === 91 ? 1 : t[r.pc] === 93 ? -1 : 0; } }
+  else if (c === 93 && t[r.h0] !== 0) {
+    const from = r.pc; let d = 1;
+    while (d) { if (--r.pc < 0) { r.done = true; break; } d += t[r.pc] === 93 ? 1 : t[r.pc] === 91 ? -1 : 0; }
+    if (!r.done && (from < 64) !== (r.pc < 64)) r.seam++;
+  }
+  if (OPS[c]) r.ops++;
+  r.reads++;
+  if (!r.done && ++r.pc >= 128) r.done = true;
+  if (r.reads >= 8192) r.done = true;
+}
+function rpRender() {
+  const r = rp;
+  for (let i = 0; i < 128; i++) {
+    const b = r.t[i], el = cells[i];
+    const op = OPS[b];
+    el.textContent = op ? op[0] : b === 0 ? '0' : '';
+    el.style.background = op ? rgb(op[1]) : '';
+    el.className = 'cell' + (op ? '' : ' noop') + (i === r.pc && !r.done ? ' pc' : '') + (i === r.h0 ? ' h0' : '') + (i === r.h1 ? ' h1' : '') + (i === r.flash ? ' flash' : '');
+  }
+  document.getElementById('rpReads').textContent = r.reads.toLocaleString();
+  document.getElementById('rpOps').textContent = r.ops.toLocaleString();
+  document.getElementById('rpSeam').textContent = r.seam;
+  const note = document.getElementById('replayNote');
+  if (r.done) note.textContent = 'Done. The newborn row now holds a program that copies itself into whatever it meets next.';
+  else if (r.seam === 1) note.textContent = 'A ] in one program just sent the program counter back to a [ in the other. The loop now spans both.';
+  else if (r.seam > 1) note.textContent = `The loop has crossed the seam ${r.seam} times, copying one byte per pass.`;
+}
+let rpTimer = null;
+const rpPlay = document.getElementById('rpPlay');
+function rpStop() { clearInterval(rpTimer); rpTimer = null; rpPlay.textContent = 'Play'; }
+rpPlay.addEventListener('click', () => {
+  if (rpTimer) return rpStop();
+  if (rp.done) rpInit();
+  rpPlay.textContent = 'Pause';
+  const speed = +document.getElementById('rpSpeed').value;
+  rpTimer = setInterval(() => {
+    for (let k = 0; k < Math.max(1, Math.round(speed / 30)) && !rp.done; k++) rpStep();
+    rpRender();
+    if (rp.done) rpStop();
+  }, speed < 30 ? 1000 / speed : 33);
+});
+document.getElementById('rpStep').addEventListener('click', () => { rpStop(); rpStep(); rpRender(); });
+document.getElementById('rpReset').addEventListener('click', () => { rpStop(); rpInit(); });
+document.getElementById('rpSpeed').addEventListener('change', () => { if (rpTimer) { rpStop(); rpPlay.click(); } });
+rpInit();
+
+start('birth');
+drawSpark();
+})();
+</script>

@@ -1,0 +1,1 @@
+runs/origin_s1/soup_005552.bin: 0 copiers, 0 heritable, of 131072 programs; op fraction 0.149

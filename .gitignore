@@ -1,0 +1,7 @@
+soup/target/
+*.bin
+!web/crop_7904.bin
+!web/births/*.bin
+*.mp4
+!media/*.mp4
+web/preview.html

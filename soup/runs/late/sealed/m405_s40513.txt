@@ -1,0 +1,1 @@
+seed 40513 | no transition in 5000 epochs | instr 9.34%
