@@ -17,8 +17,9 @@ neighbour, across the seam between the two programs. The copy it writes has
 the bracket built in.
 
 → **Read [ESSAY.md](ESSAY.md)** for the story (about ten minutes).
-→ **Open [web/soup.html](web/soup.html)** in a browser: a live soup starting
-one epoch after a real birth, plus step-through replays of eleven births.
+→ **[Open the live soup](https://apexbang.github.io/bff-borrowed-bracket/web/soup.html)**
+in your browser: it starts one epoch after a real birth, and has
+step-through replays of eleven births (source: [web/soup.html](web/soup.html)).
 
 ![The 2D soup coming alive](media/takeover_frames.png)
 
